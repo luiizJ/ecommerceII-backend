@@ -33,6 +33,7 @@ Thumbs.db
 *.tsbuildinfo
 
 # Prisma
+src/generated/prisma
 prisma/migrations/
 
 # Others
