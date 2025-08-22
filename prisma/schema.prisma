@@ -13,3 +13,135 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User{
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  password String
+  token String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  address UserAddress[]
+  orders Order[]
+}
+
+model UserAddress{
+  id Int @id @default(autoincrement())
+  userId Int
+  zipcode String
+  street String
+  number String
+  city String
+  state String
+  country String
+  complement String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Banner{
+  id Int @id @default(autoincrement())
+  image String
+  link String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Product{
+  id Int @id @default(autoincrement())
+  label String
+  price Float
+  description String
+  categoryId Int
+  viewsCount Int @default(0)
+  salesCount Int @default(0)
+  orders orderProduct[]
+  variant ProductVariant[]
+  metaData productMetaData[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model ProductVariant{
+  id Int @id @default(autoincrement())
+  productId Int
+  url String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model productMetaData{
+  id Int @id @default(autoincrement())
+  productId Int
+  categoryMetaDataId String
+  metaDataValueId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  product Product @relation(fields: [productId], references: [id])
+
+}
+
+model Category{
+  id Int @id @default(autoincrement())
+  slug String @unique
+  name String
+  products Product[]
+  MetaData CategoryMetaData[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model CategoryMetaData{
+  id String @id
+  name String
+  categoryId Int
+  values MetaDataValue[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model MetaDataValue{
+  id String @id
+  label String
+  categoryMetaDataId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  categoryMetaData CategoryMetaData @relation(fields: [categoryMetaDataId], references: [id])
+}
+
+model Order{
+  id Int @id @default(autoincrement())
+  userId Int
+  status String @default("pending")
+  totalPrice Float
+  shippingCost Float @default(0)
+  shippingDays Int @default(0)
+  shippingZipcode String?
+  shippingStreet String?
+  shippingNumber String?
+  shippingCity String?
+  shippingState String?
+  shippingCountry String?
+  shippingComplement String?
+  orderItems orderProduct[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user User @relation(fields: [userId], references: [id])
+}
+
+model orderProduct{
+  id Int @id @default(autoincrement())
+  orderId Int
+  productId Int
+  quantity Int @default(1)
+  price Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  order Order @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
