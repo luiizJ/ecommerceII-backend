@@ -65,3 +65,34 @@ export const getAllProducts = async (filters: ProductFilters) => {
     images: undefined,
   }));
 };
+
+export const getProduct = async (id: number) => {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      label: true,
+      price: true,
+      description: true,
+      categoryId: true,
+      images: true,
+    },
+  });
+  if (!product) {
+    throw new Error("Produto não encontrado");
+  }
+  return {
+    ...product,
+    images:
+      product.images.length > 0
+        ? product.images.map((image) => `media/products/${image.url}`)
+        : [],
+  };
+};
+
+export const incrementProductViews = async (id: number) => {
+  await prisma.product.update({
+    where: { id },
+    data: { viewsCount: { increment: 1 } },
+  });
+};
